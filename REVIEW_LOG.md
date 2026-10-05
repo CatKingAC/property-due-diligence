@@ -129,3 +129,106 @@ manifest validity.
   lookups).
 - `plugin.json`: validated with `python3 -m json.tool` (parses; required
   fields name/version/description present).
+
+---
+
+# Code review — scripts (rounds 6–10)
+
+Deep review of `scripts/normalize_address.py` and
+`scripts/report_scaffold.py`, conducted 2026-10-05 after the design rounds.
+Each round lists genuine findings and the changes made. Test battery results
+are recorded under Round 10.
+
+## Round 6 — Correctness & edge cases
+**Findings:**
+1. `", ".join(parts[:-2])` on input with a doubled comma
+   (`"123 Main St,, Springfield, IL 62704"`) leaked a stray `", "` into
+   the canonical street.
+2. US territories with US ZIP codes (PR, GU, VI, AS, MP) were rejected —
+   wrongly, since they are US addresses.
+3. `report_scaffold.py` used `TEMPLATE.format(...)`: any address containing
+   `{`/`}` (e.g. `"123 {Main} St"`) crashed the script with KeyError.
+4. `report_scaffold.py` accepted an empty address and wrote
+   `-due-diligence-report.md`.
+5. `report_scaffold.py` silently overwrote an existing report — a filled-in
+   report is easy to destroy by accident.
+6. Tail-parse error message (`could not parse state + ZIP from ...`) gave
+   no hint of the expected format.
+
+**Changes:**
+- `normalize_address.py`: drop empty comma segments before splitting;
+  added PR/GU/VI/AS/MP to the state set; tail error now shows the expected
+  `'<ST> <ZIP>'` format.
+- `report_scaffold.py`: template rendering switched to explicit
+  `.replace("{address}", …).replace("{date}", …)`; empty address is a hard
+  error; overwrite now requires `--force` (refuses otherwise with the file
+  list); added `--slug` override so the agent can pin the report path to
+  the slug from `normalize_address.py`; added `encoding="utf-8"` on all
+  file writes.
+- Scaffold template synced with `report-template.md`: added Zoning/land-use
+  and Listing-agent rows (§2) and the listing-legitimacy checklist item
+  (§6), which the design review added to the template but the scaffold
+  was missing.
+
+## Round 7 — Security
+**Findings:**
+1. Regex DoS audit: all patterns are simple (no nested quantifiers, no
+   backtracking traps) — clean by inspection.
+2. `out_dir` path traversal: considered and deliberately NOT hard-blocked.
+   Threat-model reasoning: `out_dir` is chosen by the invoking agent, which
+   already has arbitrary file-write through its own tools — the script adds
+   no new capability, so a block would be theater with a usability cost.
+   The attacker-influenced value is the *address*, and its path use (the
+   slug) is already restricted to `[a-z0-9-]`.
+3. Control/bidi-override characters (U+202E et al.) in a pasted address
+   could corrupt report headings and terminal display.
+
+**Changes:**
+- `normalize_address.py`: strip Cc/Cf/format characters
+  (`\x00-\x1f`, `\x7f-\u009f`, U+200E/200F, U+202A-202E, U+2066-2069)
+  from the raw input before parsing.
+- No `out_dir` block added (documented reasoning above instead).
+
+## Round 8 — Portability
+**Findings:**
+1. `open()` without `encoding=` uses the locale default — on Windows
+   (cp1252) this corrupts non-ASCII content (e.g. "Señora St", the
+   template's em-dashes).
+2. No documented minimum Python version.
+
+**Changes:**
+- All file writes now use `encoding="utf-8"`.
+- Both scripts document "Requires Python 3.8+" (only 3.6+ features used;
+  3.8 is the support floor). No POSIX-only calls; stdlib only (verified:
+  imports are json/re/sys/datetime/os).
+
+## Round 9 — API / UX design
+**Findings:**
+1. Slug inconsistency: `normalize_address.py` derives the slug from
+   street+city+state (no ZIP), while `report_scaffold.py` slugified the
+   full address string (with ZIP) — the agent could not predict the report
+   path from the normalize output.
+2. `report_scaffold.py` had no usage error for unknown flags.
+
+**Changes:**
+- Added `--slug` (round 6) and documented the wiring in SKILL.md's
+  workflow: pass the slug from step 0 into the scaffold call.
+- Tiny arg parser rejects unknown `--` flags with a clear error.
+
+## Round 10 — Adversarial test battery (all green)
+normalize_address.py:
+- `"123 Main St, Springfield, IL 62704"` → canonical + slug OK
+- `"123 Main St, Apt 4B, ..."` → unit preserved in street
+- `"1600 Pennsylvania Avenue NW, Washington, DC 20500"` → DC accepted
+- `"Calle Luna 123, San Juan, PR 00901"` → PR accepted (round 6 fix)
+- `"123 Main St,, Springfield, IL 62704"` → no stray comma (round 6 fix)
+- lowercase + ZIP+4 → normalized to `IL 62704`
+- `"PO Box 123, ..."` → warning, not failure
+- RTL-override char in input → stripped (round 7 fix)
+- non-US (`UK`) / missing commas → clean JSON errors, exit 1
+
+report_scaffold.py:
+- braces in address → no crash, heading intact (round 6 fix)
+- empty address → usage error, exit 1
+- existing report without `--force` → refused with file list
+- `--force` → overwrites; `--slug` → deterministic path; unknown flag → error
