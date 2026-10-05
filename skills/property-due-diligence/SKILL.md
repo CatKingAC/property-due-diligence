@@ -8,6 +8,16 @@ description: "Buyer due diligence on a US residential address. Use when the user
 ## Purpose
 Produce a formal, source-cited buyer due-diligence report for one US residential address: property facts, incident/crime history at the exact address, public records (flood, tax, liens, permits, sex-offender registry), and neighborhood/schools. Every material fact carries a confidence label; inference is never presented as fact.
 
+## Required capabilities
+This skill is agent-neutral (open Agent Skills format: this `SKILL.md` plus
+`references/` and `scripts/`). Any agent that can do the following can run
+it: web search, web page fetch/read, and Python 3.8+ (scripts are
+stdlib-only). Anything behind a login or an unreadable interactive map
+becomes an `unverified` item with manual steps — never a guess. The
+`commands/` directory in this repo is Claude Code-specific; other agents
+trigger this skill through the trigger phrases in the frontmatter
+description above.
+
 ## Workflow
 Scripts referenced below live in this skill's `scripts/` directory —
 resolve them relative to this SKILL.md's location.
@@ -17,7 +27,11 @@ resolve them relative to this SKILL.md's location.
 2. **Incident & crime history.** Exact-address news search (`"<street>, <city>"` + murder/shooting/fire/crime/incident), local newspaper archive, then SpotCrime/CrimeMapping for the block. Write "none found" explicitly when empty — absence of news is not proof of safety; say so.
 3. **Public records.** FEMA flood zone (msc.fema.gov), county tax collector (delinquency), recorder of deeds (liens), NSOPW + state sex-offender registry, city permit portal. Anything behind a login or an interactive map you cannot read goes in as `unverified` with the exact manual step for the buyer.
 4. **Neighborhood & schools.** Listing description, school district site / GreatSchools / NCES, Census QuickFacts. Keep brief; this section supports the purchase decision, it is not a relocation guide.
-5. **Report.** Scaffold with `scripts/report_scaffold.py`, fill every section per `references/report-template.md`, apply `references/verification-rules.md` to every fact. Deliver: the report file path + a 5–8 line chat summary of key findings and the must-verify items needing the buyer's manual action.
+5. **Report.** Scaffold with `scripts/report_scaffold.py "<address>" --slug <slug-from-step-0>`
+   (pass the slug from the normalize output so the report path is
+   predictable; `--force` overwrites an existing report), fill every section
+   per `references/report-template.md`, apply `references/verification-rules.md`
+   to every fact. Deliver: the report file path + a 5–8 line chat summary of key findings and the must-verify items needing the buyer's manual action.
 
 ## Output Contract
 - One Markdown report at the user-chosen path (default `./<address-slug>-due-diligence-report.md`), following `references/report-template.md` exactly — all eight sections present, even if a section says "none found" or "unverified".
