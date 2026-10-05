@@ -74,8 +74,9 @@ Example shape (do not copy wording):
 ### 3b. Immediate area (≤0.5 mi)
 - SpotCrime / CrimeMapping: what the map showed (counts by category if
   readable), or `unverified` + manual steps.
-- CrimeGrade: city/neighborhood grade ONLY, with geographic scope labeled.
-  Never present as block-level fact.
+- CrimeGrade: label the geographic scope actually shown (city /
+  neighborhood / ZIP, or block-level for address searches). Never present
+  a city grade as a block-level fact.
 
 ---
 
