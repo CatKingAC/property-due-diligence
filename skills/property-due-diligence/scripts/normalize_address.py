@@ -30,6 +30,8 @@ US_STATES = {
     "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH",
     "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA",
     "WV", "WI", "WY",
+    # US territories (have US ZIP codes; assessor coverage varies)
+    "PR", "GU", "VI", "AS", "MP",
 }
 
 # Common street suffix abbreviations -> expansion (for search variants only)
@@ -54,9 +56,17 @@ def main():
     if len(sys.argv) < 2 or not sys.argv[1].strip():
         fail("usage: normalize_address.py \"<street>, <city>, <ST> <zip>\"")
     raw = " ".join(sys.argv[1].split())
+    # Strip control / bidi-override characters: they can corrupt report
+    # headings and terminal output if they ride in on a pasted address.
+    raw = re.sub(r"[\x00-\x1f\x7f-\u009f\u200e\u200f\u202a-\u202e\u2066-\u2069]", "", raw)
+    raw = " ".join(raw.split())
+    if not raw:
+        fail("empty address")
 
-    # Split into comma-separated parts; last part holds state + zip
-    parts = [p.strip() for p in raw.split(",")]
+    # Split into comma-separated parts; last part holds state + zip.
+    # Empty segments (e.g. "St,, Springfield") are dropped so they don't
+    # leak stray commas into the canonical form.
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
     if len(parts) < 3:
         fail("address must look like: <street>, <city>, <ST> <zip>")
 
@@ -66,7 +76,7 @@ def main():
 
     m = re.fullmatch(r"([A-Za-z]{2})\s+(\d{5})(?:-\d{4})?", tail)
     if not m:
-        fail(f"could not parse state + ZIP from {tail!r}")
+        fail(f"could not parse state + ZIP from {tail!r} (expected '<ST> <ZIP>', e.g. 'IL 62704)")
     state, zip_code = m.group(1).upper(), m.group(2)
     if state not in US_STATES:
         fail(f"{state!r} is not a US state code")
