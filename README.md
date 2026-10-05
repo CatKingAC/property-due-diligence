@@ -14,9 +14,9 @@ Built from a real research workflow. It verifies; it doesn't guess.
 
 | Agent | How to install |
 |-------|----------------|
-| **Claude Code** | Add this repo as a marketplace, then install the plugin: `/plugin marketplace add github.com/CatKingAC/property-due-diligence`, then `/plugin install property-due-diligence@https://github.com/CatKingAC/property-due-diligence` |
-| **Codex CLI** | Copy `skills/property-due-diligence/` to `~/.codex/skills/` (Codex reads the same `SKILL.md` format) |
-| **Any Agent Skills-compatible agent** | Point the agent at `skills/property-due-diligence/` — the skill needs web search, page fetch, and Python 3.8+ (stdlib only) |
+| **Claude Code** | `/plugin marketplace add CatKingAC/property-due-diligence`, then `/plugin install property-due-diligence@property-due-diligence` |
+| **Codex CLI** | Copy `skills/property-due-diligence/` to `~/.codex/skills/` (all projects) or `.codex/skills/` (one project) |
+| **Any Agent Skills-compatible agent** | Point the agent at `skills/property-due-diligence/` (or the cross-tool `.agents/skills/` convention) — the skill needs web search, page fetch, and Python 3.8+ (stdlib only) |
 | **Anything else** | Paste `skills/property-due-diligence/SKILL.md` into context and ask the agent to follow it |
 
 The `commands/` directory (`/due-diligence`) is Claude Code-specific; on
