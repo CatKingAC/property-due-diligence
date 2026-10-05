@@ -390,3 +390,47 @@ Address: 3110 Winter Park Pl, Madison, WI 53719 (live Redfin listing, MLS# 20339
 - Step 3: flood → `unverified` + FEMA manual steps (interactive map); First Street 1/10 flood factor as `third-party`; tax path confirmed via §5 pattern (Dane County Treasurer (608) 266-4151); deeds/permits/NSOPW paths identified with fallbacks.
 - Step 4: assigned schools with ratings via listing (GreatSchools-sourced) ✓.
 **Conclusion: every template field is fillable or properly markable using only data-sources.md. No gaps found.**
+
+---
+
+# README i18n (rounds 21–25) — EN/ZH/ES/FR
+
+Wrote four READMEs (README.md, README.zh-CN.md, README.es.md,
+README.fr.md) with badges, language nav, platform table, usage, scope,
+and repo layout. Five review rounds:
+
+## Round 21 — Chinese (re-read in full)
+**Findings:**
+1. `REVIEW_LOG.md` row had an English fragment leaked in:
+   `核实_review_历史` → fixed to `设计、代码与核实审查历史（英文）`.
+2. `或者直接说人话` too colloquial for a public repo → `或者直接用自然语言`.
+**Changes:** both fixed. Rest reads naturally; terminology consistent
+（尽职调查/留置权/欠税/待核实清单）.
+
+## Round 22 — Spanish (re-read in full)
+**Findings:** none. Tú-form imperatives consistent throughout
+(Dale, pídele, obtendrás, Mira); terminology accurate
+(diligencia debida, gravámenes, impuestos atrasados, muros de pago);
+EE. UU. abbreviation correct.
+**Changes:** none.
+
+## Round 23 — French (re-read in full)
+**Findings:** none. Vous-form imperatives consistent (Donnez-lui,
+Copiez, Pointez, Collez); legal terms correct (privilèges for liens);
+French guillemets used for « Aucun résultat »; "ne remplace ni… ni…"
+construction correct.
+**Changes:** none.
+
+## Round 24 — cross-language consistency (scripted)
+Verified programmatically: install commands byte-identical inside
+backticks across all four files; all 30 invariant strings
+(paths, URLs, product names, script names) present in every file;
+all four have the same 6 `##` sections in the same order.
+**Changes:** none (one regex false-positive on Chinese punctuation
+ruled out by exact backtick extraction).
+
+## Round 25 — markdown rendering (scripted)
+All four files: tables have uniform pipe counts, all relative links
+resolve to existing files, both badges present with valid syntax,
+language nav intact.
+**Changes:** none.
