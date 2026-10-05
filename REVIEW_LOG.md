@@ -333,3 +333,60 @@ mrkhachaturov/agent-harness-docs; nacha192/codex-claude-code-team.
 4. Re-ran the real-address leak grep (`hixson|1905|37405`): no hits.
 
 **Changes:** none — repo is clean.
+
+---
+
+# Cross-document audit (rounds 16–20) — workflow × sources × template
+
+Goal: the three documents must agree — what the SKILL workflow says to
+check, what data-sources.md teaches, and what report-template.md requires.
+Every source below was verified by web search (official pages where they
+exist), not from memory.
+
+## Round 16 — SKILL workflow × data-sources cross-audit
+**Finding:** Step 1's record list (property type, zoning, year built, sqft,
+lot, beds/baths, owner, assessed value + tax history, sale/price history,
+parcel/APN, listing agent/brokerage) was richer than §1's "Record:" line,
+which omitted beds/baths, price history, listing agent/brokerage, and
+explicit tax history.
+**Change:** §1 Record line expanded to match the workflow exactly.
+
+## Round 17 — report-template × data-sources cross-audit
+**Findings:**
+1. Template §2 "Parking" and "HOA" rows had no source guidance anywhere.
+2. Template §6 "confirm the listing is legitimate" had no source guidance.
+3. Template §3b said "CrimeGrade: city/neighborhood grade ONLY", but
+   CrimeGrade's own site says address searches show the block-level grade —
+   the template was over-strict vs. the searched fact.
+**Changes:**
+- §1: new "Listing details on aggregators" bullet (beds/baths, parking,
+  HOA dues, agent/brokerage, MLS#, price history, remarks; listing data is
+  marketing, `third-party` at best) and new "Listing legitimacy" bullet
+  (cross-check across 2+ aggregators; beware impersonation scams).
+- §3 CrimeGrade rewritten: "label the geographic scope actually shown";
+  template §3b synced to the same wording.
+
+## Round 18 — source-by-source search verification
+Verified this session (web search; official pages where they exist):
+- **FEMA Flood Map Service Center** (msc.fema.gov, Address Search) — official; matches §4.
+- **NSOPW** (nsopw.gov, DOJ SMART Office) — free; "Geographical Search" tab does radius-around-address; matches §6.
+- **NETR Online** (publicrecords.netronline.com) — real directory of county assessor/recorder/treasurer sites; matches §1/§2/§5 usage.
+- **SpotCrime** — address-based crime maps (news + law-enforcement data); matches §3.
+- **CrimeMapping** — law-enforcement-partner data, block-level, ~6 months; **coverage depends on agency participation** (added to §3 — empty ≠ safe).
+- **CrimeGrade** — A+–F grades from reported crime data; address search can show block-level grade (see round 17 fix).
+- **NCES** (nces.ed.gov/ccd/schoolsearch) — official CCD public-school locator; matches §8.
+- **Census QuickFacts** (census.gov/quickfacts, opened directly) — official; states/counties/places 5000+; matches §8.
+- **GreatSchools** — confirmed as the ratings provider behind listing-site school ratings (observed in round 20 dry run); labeled T in §8.
+- **Zillow / Realtor.com / Redfin / Homes.com** — the four aggregators; Homes.com's tax-history completeness verified first-hand in the original research session.
+
+## Round 19 — verification-rules × report-template consistency
+Checked: cross-check rule (assessor-or-2+-aggregators; MLS syndication counts as one), "as of" dates, conflict handling (show both → unverified → §6), "none found" protocol, edge cases (nonexistent/rural/new-construction/listed), privacy boundaries. **No contradictions found** — no changes needed.
+
+## Round 20 — end-to-end dry run (docs only, no improvisation)
+Address: 3110 Winter Park Pl, Madison, WI 53719 (live Redfin listing, MLS# 2033953, $625,000). Followed only the three documents:
+- Step 0: normalize ✓.
+- Step 1: all 16 template §2 rows fillable — Redfin gave type/year/sqft/lot/beds-baths/APN/price/MLS#/agent/parking; Dane County assessor path found via the §1 pattern ("Access Dane" portal); HOA blank on listing → `unverified` per new §1 guidance. Listing-vs-public-record discrepancies found (2,748 vs 2,014 sqft; 5bd/3.5ba vs 4bd/2.5ba) → handled by the template's "note methodology differences" instruction.
+- Step 2: exact-address crime queries → none found (only listings and people-search pages, correctly excluded per the privacy rule).
+- Step 3: flood → `unverified` + FEMA manual steps (interactive map); First Street 1/10 flood factor as `third-party`; tax path confirmed via §5 pattern (Dane County Treasurer (608) 266-4151); deeds/permits/NSOPW paths identified with fallbacks.
+- Step 4: assigned schools with ratings via listing (GreatSchools-sourced) ✓.
+**Conclusion: every template field is fillable or properly markable using only data-sources.md. No gaps found.**
