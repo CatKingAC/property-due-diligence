@@ -1,22 +1,14 @@
 ---
-name: "property_due_diligence"
+name: "property-due-diligence"
 description: "Buyer due diligence on a US residential address. Use when the user asks to research a property before buying, check whether an address is a single-family home, look up a house's history, or check an address for crimes, floods, or other red flags. Trigger on: 'due diligence on <address>', 'look into this house', 'research this property', 'is this address safe', 'check out this listing'. Produces a formal, source-cited buyer report with every fact labeled verified / third-party / unverified."
+license: "MIT"
+compatibility: "Requires web search, web page fetch/read, and Python 3.8+ (scripts are stdlib-only). Anything behind a login or an unreadable interactive map becomes an unverified item with manual steps, never a guess."
 ---
 
 # Property Due Diligence
 
 ## Purpose
 Produce a formal, source-cited buyer due-diligence report for one US residential address: property facts, incident/crime history at the exact address, public records (flood, tax, liens, permits, sex-offender registry), and neighborhood/schools. Every material fact carries a confidence label; inference is never presented as fact.
-
-## Required capabilities
-This skill is agent-neutral (open Agent Skills format: this `SKILL.md` plus
-`references/` and `scripts/`). Any agent that can do the following can run
-it: web search, web page fetch/read, and Python 3.8+ (scripts are
-stdlib-only). Anything behind a login or an unreadable interactive map
-becomes an `unverified` item with manual steps — never a guess. The
-`commands/` directory in this repo is Claude Code-specific; other agents
-trigger this skill through the trigger phrases in the frontmatter
-description above.
 
 ## Workflow
 Scripts referenced below live in this skill's `scripts/` directory —
