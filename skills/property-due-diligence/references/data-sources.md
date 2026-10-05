@@ -21,7 +21,7 @@ vs interactive (with fallback when interactive).
   "Assessor". Or search `"[county] [state] property assessor parcel search"`.
   Many counties run on qpublic.net subdomains. Record: property type,
   zoning/land-use, year built, living area, lot size, parcel/APN, owner of
-  record, assessed value, appraisal history.
+  record, assessed value + appraisal history, annual tax + tax history.
 - **County GIS / parcel viewer** — **O** · $ free · interactive map.
   Usually linked from the assessor site; use it to visually confirm lot
   boundaries and neighboring land use. If unreadable, skip — the
@@ -33,6 +33,14 @@ vs interactive (with fallback when interactive).
 - **Redfin** (https://www.redfin.com) — **T** · same as Zillow.
 - **Homes.com** (https://www.homes.com) — **T** · same as Zillow; often has
   the most complete MLS remarks and tax-history tables.
+- **Listing details on aggregators** — **T**: beds/baths, parking, HOA dues,
+  listing agent/brokerage, MLS#, price history, and MLS remarks live on the
+  listing pages. Cross-check specs against the assessor — listing data is
+  marketing (`third-party` at best).
+- **Listing legitimacy** — cross-check the same listing across 2+
+  aggregators (price, agent name, photos); verify the brokerage exists.
+  Beware owner-impersonation/rental scams. If it can't be corroborated,
+  put it in the Must-Verify Checklist.
 - Rule: property type, price history, and tax history must be confirmed by
   the assessor **or** 2+ aggregators agreeing. One aggregator alone =
   `third-party`.
@@ -62,9 +70,12 @@ vs interactive (with fallback when interactive).
   Enter the address, set radius ≤ 0.5 mi, read the incident list. If the map
   is unreadable: `unverified` + manual steps for the buyer.
 - **CrimeMapping** (https://www.crimemapping.com) — **T** · same handling
-  as SpotCrime.
-- **CrimeGrade** (https://crimegrade.org) — **T** · city/neighborhood grades
-  ONLY. Never present as block-level fact; label the geographic scope.
+  as SpotCrime. Coverage depends on the local agency participating — if
+  the area isn't covered, say so; empty is not safe.
+- **CrimeGrade** (https://crimegrade.org) — **T** · letter grades (A+–F)
+  by city/neighborhood/ZIP from reported crime data; address search may
+  show the block-level grade. Always label the geographic scope actually
+  shown — never present a city grade as a block fact.
 
 ## 4. Flood zone
 
