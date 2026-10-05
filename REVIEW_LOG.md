@@ -232,3 +232,104 @@ report_scaffold.py:
 - empty address → usage error, exit 1
 - existing report without `--force` → refused with file list
 - `--force` → overwrites; `--slug` → deterministic path; unknown flag → error
+
+---
+
+# Verification rounds (rounds 11–15) — search-grounded, no guessing
+
+Rule for these rounds: every factual claim about platforms, formats, and
+sources was verified by web search against official docs or the spec
+before changing anything. Sources are cited inline.
+
+## Round 11 — Agent Skills spec compliance
+**Sources:** agentskills.io specification (via justinhubbard37/agentskills-docs,
+serisium/doltrooms, immutex/mcode mirrors of the spec).
+
+**Findings:**
+1. **Spec violation:** frontmatter `name` was `property_due_diligence` but
+   the directory is `property-due-diligence`. The spec requires the name to
+   match the directory name (lowercase, digits, hyphens; ≤64 chars).
+2. SKILL.md body is 39 lines — well under the 500-line / 5000-token limit.
+3. `references/` is one level deep, no nested chains — compliant.
+4. Description is 494 chars (limit 1024), states what + when to use — compliant.
+5. The spec provides native `license` and `compatibility` (≤500 chars)
+   frontmatter fields for exactly what the "Required capabilities" body
+   section was saying — frontmatter is the right place (progressive
+   disclosure: capabilities visible at catalog tier).
+
+**Changes:**
+- Frontmatter: `name: "property-due-diligence"` (matches directory);
+  added `license: "MIT"`; added `compatibility` with the environment
+  requirements; removed the duplicated body section.
+
+## Round 12 — Claude Code plugin manifest + marketplace
+**Sources:** official docs code.claude.com/docs/en/plugins-reference and
+code.claude.com/docs/en/plugin-marketplaces (read in full).
+
+**Findings:**
+1. **README was wrong twice:** `/plugin marketplace add` takes
+   `<owner>/<repo>` (or repo URL) — not a bare `github.com/...` path —
+   and `/plugin install` takes `<plugin>@<marketplace-name>` — not a URL.
+2. **Missing file:** a repo with only `plugin.json` cannot be added as a
+   marketplace — the marketplace command registers repos that contain
+   `.claude-plugin/marketplace.json`. The documented self-hosting pattern
+   is the repo listing itself with `"source": "./"`.
+3. `plugin.json` checked field-by-field against the official Fields table:
+   all keys (`name`, `description`, `version`, `author.name`, `repository`,
+   `license: MIT` SPDX, `keywords`) are recognized — no strip-warnings
+   expected; `name` is kebab-case with no Anthropic-name collision.
+4. Default component discovery covers our layout (`skills/` and
+   `commands/` at plugin root) — no manifest path declarations needed.
+5. Marketplace entry `name` must equal manifest `name` — both are
+   `property-due-diligence`.
+
+**Changes:**
+- Added `.claude-plugin/marketplace.json` (repo as its own marketplace:
+  `owner: CatKingAC`, one plugin entry, `source: "./"`).
+- README install commands corrected to the documented forms.
+- Limitation noted: `claude plugin validate` could not be run here (no
+  Claude Code CLI in this environment) — the user should run
+  `claude plugin validate .` once in Claude Code to confirm.
+
+## Round 13 — Codex install path
+**Sources:** OpenAI Codex docs via nirelbaz/promptpit knowledge base;
+mrkhachaturov/agent-harness-docs; nacha192/codex-claude-code-team.
+
+**Findings:**
+1. `~/.codex/skills/<name>/SKILL.md` (user scope) confirmed — the README
+   claim was correct.
+2. Additionally verified: `.codex/skills/` (project scope) and the
+   cross-tool `.agents/skills/` convention, which compliant clients scan
+   alongside native directories.
+3. `agents/openai.yaml` is optional UI/invocation metadata — not required;
+   the skill works without it.
+4. Skill-directory-name == frontmatter-name (fixed in round 11) is what
+   Codex uses for discovery — the fix mattered here too.
+
+**Changes:**
+- README Codex row extended with the project-scope path and the
+  `.agents/skills/` alternative. No skill changes needed.
+
+## Round 14 — Data-source URL re-verification
+**Sources:** msc.fema.gov FAQ pages; DOJ SMART Office / nsopw.gov "About NSOPW".
+
+**Findings:**
+1. FEMA Flood Map Service Center confirmed at msc.fema.gov with an
+   Address Search feature (`/portal/search`) — matches data-sources.md.
+   The doc's fallback note (site is slow/bot-sensitive; record the
+   attempt, go manual) stays accurate.
+2. NSOPW confirmed at www.nsopw.gov (DOJ SMART Office): free, supports a
+   geographic-radius search around an address via the "Geographical
+   Search" tab — matches data-sources.md §6.
+
+**Changes:** none needed — both entries verified accurate as written.
+
+## Round 15 — Repo hygiene / secret scan
+**Findings:**
+1. Grep for `api_key|secret|token|password|bearer` across md/py/json:
+   clean (only prose mentions of "token budget").
+2. Grep for email addresses: none in the repo.
+3. LICENSE: MIT, `Copyright (c) 2026 CatKingAC` — correct.
+4. Re-ran the real-address leak grep (`hixson|1905|37405`): no hits.
+
+**Changes:** none — repo is clean.
