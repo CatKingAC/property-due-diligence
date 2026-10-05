@@ -1,21 +1,27 @@
 # property-due-diligence
 
-A Claude Code plugin for **buyer due diligence on a US residential address**.
-Give it an address; it researches property facts, incident/crime history at
-the exact address, public records (flood zone, tax, liens, permits,
-sex-offender registry), and neighborhood/schools — then produces a formal,
-source-cited buyer report where every material fact is labeled
-`verified` / `third-party` / `unverified`.
+A **universal agent skill** (open Agent Skills format) for **buyer due
+diligence on a US residential address**. Give it an address; it researches
+property facts, incident/crime history at the exact address, public records
+(flood zone, tax, liens, permits, sex-offender registry), and
+neighborhood/schools — then produces a formal, source-cited buyer report
+where every material fact is labeled `verified` / `third-party` /
+`unverified`.
 
 Built from a real research workflow. It verifies; it doesn't guess.
 
-## Install
+## Works with
 
-```bash
-# add this repo as a marketplace, then install the plugin
-/plugin marketplace add github.com/CatKingAC/property-due-diligence
-/plugin install property-due-diligence@https://github.com/CatKingAC/property-due-diligence
-```
+| Agent | How to install |
+|-------|----------------|
+| **Claude Code** | Add this repo as a marketplace, then install the plugin: `/plugin marketplace add github.com/CatKingAC/property-due-diligence`, then `/plugin install property-due-diligence@https://github.com/CatKingAC/property-due-diligence` |
+| **Codex CLI** | Copy `skills/property-due-diligence/` to `~/.codex/skills/` (Codex reads the same `SKILL.md` format) |
+| **Any Agent Skills-compatible agent** | Point the agent at `skills/property-due-diligence/` — the skill needs web search, page fetch, and Python 3.8+ (stdlib only) |
+| **Anything else** | Paste `skills/property-due-diligence/SKILL.md` into context and ask the agent to follow it |
+
+The `commands/` directory (`/due-diligence`) is Claude Code-specific; on
+other agents, trigger the skill with plain language — the trigger phrases
+are in the skill's frontmatter description.
 
 ## Usage
 
@@ -23,7 +29,7 @@ Built from a real research workflow. It verifies; it doesn't guess.
 /due-diligence 123 Main St, Springfield, IL 62704
 ```
 
-Or invoke the skill directly: ask Claude Code to "run due diligence on
+Or in plain language: ask your agent to "run due diligence on
 <address>". The report is written to
 `./<address-slug>-due-diligence-report.md` (or a path you name), and you get
 a 5–8 line summary in chat. See `examples/sample-report.md` for the
@@ -61,9 +67,9 @@ a 5–8 line summary in chat. See `examples/sample-report.md` for the
 ## Repo layout
 
 ```text
-.claude-plugin/plugin.json
+.claude-plugin/plugin.json    # Claude Code distribution manifest
 skills/property-due-diligence/
-  SKILL.md                  # the 5-step workflow
+  SKILL.md                  # the 5-step workflow (agent-neutral)
   references/
     data-sources.md         # where to check what, per category
     report-template.md      # formalized output template (+ JSON sidecar)
@@ -71,9 +77,9 @@ skills/property-due-diligence/
   scripts/
     normalize_address.py    # address parsing/validation (stdlib only)
     report_scaffold.py      # report + JSON skeleton generator
-commands/due-diligence.md   # /due-diligence slash command
+commands/due-diligence.md   # /due-diligence slash command (Claude Code only)
 examples/sample-report.md   # fictional example output
-REVIEW_LOG.md               # design review history (5 rounds)
+REVIEW_LOG.md               # design review history (rounds 1-5) + code review (rounds 6-10)
 ```
 
 ## License
